@@ -6,6 +6,7 @@ dtb-$(CONFIG_TARGET_QEMU_VIRT) += qemu-virt.dtb
 dtb-$(CONFIG_TARGET_SIFIVE_UNLEASHED) += hifive-unleashed-a00.dtb
 dtb-$(CONFIG_TARGET_SIFIVE_UNMATCHED) += hifive-unmatched-a00.dtb
 dtb-$(CONFIG_TARGET_SIPEED_MAIX) += k210-maix-bit.dtb
+dtb-$(CONFIG_TARGET_ROCKET_CHIP_VCU128) += rocket-chip-vcu128.dtb
 
 targets += $(dtb-y)
 
