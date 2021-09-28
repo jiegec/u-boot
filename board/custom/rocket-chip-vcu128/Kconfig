@@ -20,12 +20,6 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	select GENERIC_RISCV
 	imply SMP
 	imply BOARD_LATE_INIT
-	imply PCI_INIT_R
-	imply CMD_POWEROFF
-	imply CMD_PING
 	imply SYS_NS16550
-	imply SYSRESET
-	imply SYSRESET_CMD_POWEROFF
-	imply SYSRESET_SYSCON
 
 endif
