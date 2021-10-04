@@ -13,6 +13,7 @@
 
 	aliases {
 		serial0 = &uart0;
+		spi0 = &qspi0;
 	};
 
 	cpus {
@@ -82,7 +83,7 @@
 			#interrupt-cells = <1>;
 			compatible = "riscv,plic0";
 			interrupt-controller;
-			interrupts-extended = <&cpu0_intc 11>;
+			interrupts-extended = <&cpu0_intc 11 &cpu0_intc 9>;
 			reg = <0xc000000 0x4000000>;
 			reg-names = "control";
 			riscv,max-priority = <3>;
@@ -111,6 +112,20 @@
 			reg-shift = <2>;
 			reg-offset = <0x1000>;
 			clock-frequency = <100000000>;
+			interrupts-extended = <&plic0 0>;
+		};
+		qspi0: spi@60100000 {
+			compatible = "xlnx,xps-spi-2.00.a";
+			reg = <0x60100000 0x1000>;
+			fifo-size = <256>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			interrupts-extended = <&plic0 1>;
+
+			flash@0 {
+				compatible = "mt25qu02g", "jedec,spi-nor";
+				reg = <0>;
+			};
 		};
 	};
 };

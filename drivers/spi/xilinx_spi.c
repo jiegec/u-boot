@@ -117,7 +117,14 @@ static int xilinx_spi_probe(struct udevice *bus)
 
 	priv->fifo_depth = dev_read_u32_default(bus, "fifo-size", 0);
 
+#ifdef CONFIG_TARGET_ROCKET_CHIP_VCU128
+	if (regs) {
+		writel(SPISSR_RESET_VALUE, &regs->srr);
+	}
+	writel(SPISSR_RESET_VALUE, &priv->regs->srr);
+#else
 	writel(SPISSR_RESET_VALUE, &regs->srr);
+#endif
 
 	return 0;
 }
