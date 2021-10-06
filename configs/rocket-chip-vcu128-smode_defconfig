@@ -28,7 +28,7 @@ CONFIG_PARTITIONS=n
 # run in s-mode
 # as payload of opensbi
 CONFIG_RISCV_SMODE=y
-CONFIG_SYS_TEXT_BASE=0x80200000
+CONFIG_SYS_TEXT_BASE=0x80020000
 
 # early debug uart
 CONFIG_DEBUG_UART=y
