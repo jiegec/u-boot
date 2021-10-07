@@ -14,6 +14,7 @@
 	aliases {
 		serial0 = &uart0;
 		spi0 = &qspi0;
+		eth0 = &eth0;
 	};
 
 	cpus {
@@ -114,7 +115,7 @@
 			clock-frequency = <100000000>;
 			interrupts-extended = <&plic0 0>;
 		};
-		qspi0: spi@60100000 {
+		qspi0: qspi@60100000 {
 			compatible = "xlnx,xps-spi-2.00.a";
 			reg = <0x60100000 0x1000>;
 			fifo-size = <256>;
@@ -125,6 +126,27 @@
 			flash@0 {
 				compatible = "mt25qu02g", "jedec,spi-nor";
 				reg = <0>;
+			};
+		};
+		eth_dma0: eth_dma@60300000 {
+			reg = <0x0 0x60300000>;
+		};
+		eth0: eth0@60400000 {
+			compatible = "xlnx,axi-ethernet-1.00.a";
+			reg = <0x60400000 0x10000>;
+			mac-address = [00 11 22 33 44 55];
+			device_type = "network";
+			axistream-connected = <&eth_dma0>;
+			phy-handle = <&phy3>;
+			phy-mode = "sgmii";
+
+			mdio: mdio {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				phy3: phy@3 {
+					device_type = "ethernet-phy";
+					reg = <3>;
+				};
 			};
 		};
 	};
