@@ -20,7 +20,10 @@
 #define CONFIG_ENV_IS_NOWHERE   1 
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-    "autoload=no\0"
+    "autoload=no\0" \
+    "serverip=10.0.0.1\0" \
+    "ipaddr=10.0.0.2\0" \
+    "netmask=255.255.255.0\0"
 
 #define CONFIG_TIMESTAMP
 
