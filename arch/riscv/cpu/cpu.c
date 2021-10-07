@@ -94,10 +94,7 @@ int arch_cpu_init_dm(void)
 	/* Enable FPU */
 	if (supports_extension('d') || supports_extension('f')) {
 		csr_set(MODE_PREFIX(status), MSTATUS_FS);
-#ifndef CONFIG_TARGET_ROCKET_CHIP_VCU128
-		// throws illegal instruction
 		csr_write(CSR_FCSR, 0);
-#endif
 	}
 
 	if (CONFIG_IS_ENABLED(RISCV_MMODE)) {
@@ -109,10 +106,7 @@ int arch_cpu_init_dm(void)
 		csr_write(CSR_MSCOUNTEREN, GENMASK(2, 0));
 		csr_write(CSR_MUCOUNTEREN, GENMASK(2, 0));
 #else
-#ifndef CONFIG_TARGET_ROCKET_CHIP_VCU128
-		// throws illegal instruction
 		csr_write(CSR_MCOUNTEREN, GENMASK(2, 0));
-#endif
 #endif
 
 		/* Disable paging */
