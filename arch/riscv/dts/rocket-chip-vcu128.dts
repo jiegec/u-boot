@@ -1,5 +1,7 @@
 /dts-v1/;
 
+#include <dt-bindings/gpio/gpio.h>
+
 / {
 	#address-cells = <1>;
 	#size-cells = <1>;
@@ -15,6 +17,7 @@
 		serial0 = &uart0;
 		spi0 = &qspi0;
 		eth0 = &eth0;
+		i2c0 = &i2c0;
 	};
 
 	cpus {
@@ -147,6 +150,20 @@
 					device_type = "ethernet-phy";
 					reg = <3>;
 				};
+			};
+		};
+		i2c0: i2c@60500000 {
+			compatible = "xlnx,xps-iic-2.00.a";
+			reg = <0x60500000 0x10000>;
+			#size-cells = <0>;
+			#address-cells = <1>;
+			clock-frequency = <1000>;
+
+			tca6416a: gpio@20 {
+				compatible = "ti,tca6416";
+				reg = <0x20>;
+				#gpio-cells = <2>;
+				gpio-controller;
 			};
 		};
 	};
