@@ -140,15 +140,26 @@
 			mac-address = [00 11 22 33 44 55];
 			device_type = "network";
 			axistream-connected = <&eth_dma0>;
-			phy-handle = <&phy3>;
+			phy-handle = <&ti_dp83867>;
 			phy-mode = "sgmii";
 
 			mdio: mdio {
 				#address-cells = <1>;
 				#size-cells = <0>;
-				phy3: phy@3 {
+				reset-gpios = <&tca6416a 6 GPIO_ACTIVE_LOW>;
+				reset-delay-us = <2>;
+
+				xilinx_phy: phy@0 {
+					#phy-cells = <1>;
+					device_type = "ethernet-phy";
+					reg = <0>;
+				};
+
+				ti_dp83867: phy@3 {
+					#phy-cells = <1>;
 					device_type = "ethernet-phy";
 					reg = <3>;
+					ti,sgmii-ref-clock-output-enable;
 				};
 			};
 		};
