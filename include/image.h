@@ -73,8 +73,13 @@ struct fdt_region;
 #  endif
 # else
 #  define IMAGE_ENABLE_CRC32	1
+
+// disable signature checking for rocket-chip-vcu128 to reduce binary size
+#ifndef CONFIG_TARGET_ROCKET_CHIP_VCU128
 #  define IMAGE_ENABLE_MD5	1
 #  define IMAGE_ENABLE_SHA1	1
+#endif
+
 # endif
 
 #ifndef IMAGE_ENABLE_CRC32

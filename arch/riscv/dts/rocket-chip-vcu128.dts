@@ -68,13 +68,6 @@
 			reg = <0x2000000 0x10000>;
 			reg-names = "control";
 		};
-		debug0: debug-controller@0 {
-			compatible = "sifive,debug-013", "riscv,debug-013";
-			debug-attach = "jtag";
-			interrupts-extended = <&cpu0_intc 65535>;
-			reg = <0x0 0x1000>;
-			reg-names = "control";
-		};
 		error0: error-device@3000 {
 			compatible = "sifive,error0";
 			reg = <0x3000 0x1000>;
