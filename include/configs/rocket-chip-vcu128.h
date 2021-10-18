@@ -24,7 +24,9 @@
   "autoload=no\0"                                                              \
   "serverip=10.0.0.1\0"                                                        \
   "ipaddr=10.0.0.2\0"                                                          \
-  "netmask=255.255.255.0\0"
+  "netmask=255.255.255.0\0"                                                    \
+  "boot_linux=tftpboot 0x82000000 10.0.0.1:image.itb;setenv initrd_high "      \
+  "0x82000000;setenv fdt_high 0x81800000;bootm 0x82000000\0"
 
 #define CONFIG_TIMESTAMP
 
