@@ -15,6 +15,9 @@ CONFIG_OF_PRIOR_STAGE=y
 CONFIG_SYS_RELOC_GD_ENV_ADDR=y
 CONFIG_DM_MTD=y
 
+# do not fixup reserved memory region
+CONFIG_OF_BOARD_FIXUP=n
+
 # reduce image size
 CONFIG_BLK=n
 CONFIG_MTD=n
