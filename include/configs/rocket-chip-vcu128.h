@@ -23,8 +23,7 @@
   "serverip=10.0.0.1\0"                                                        \
   "ipaddr=10.0.0.2\0"                                                          \
   "netmask=255.255.255.0\0"                                                    \
-  "boot_linux=tftpboot 0x90000000 10.0.0.1:image.itb;setenv initrd_high "      \
-  "0x92000000;setenv fdt_high 0x91000000;bootm 0x90000000\0"
+  "boot_linux=tftpboot 0x80100000 10.0.0.1:image.itb;bootm 0x80100000\0"
 
 #define CONFIG_TIMESTAMP
 
