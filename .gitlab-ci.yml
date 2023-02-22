@@ -2,7 +2,7 @@
 
 # Grab our configured image.  The source for this is found at:
 # https://source.denx.de/u-boot/gitlab-ci-runner
-image: trini/u-boot-gitlab-ci-runner:focal-20220113-03Feb2022
+image: trini/u-boot-gitlab-ci-runner:focal-20220302-15Mar2022
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
@@ -124,21 +124,26 @@ check for migrated symbols in board header:
   script:
     - KSYMLST=`mktemp`;
       KUSEDLST=`mktemp`;
+      RET=0;
       cat `find . -name "Kconfig*"` |
          sed -n -e 's/^\s*config *\([A-Za-z0-9_]*\).*$/CONFIG_\1/p'
          -e 's/^\s*menuconfig *\([A-Za-z0-9_]*\).*$/CONFIG_\1/p'
          | sort -u > $KSYMLST;
       for CFG in `find include/configs -name "*.h"`; do
-         grep '#define[[:blank:]]CONFIG_' $CFG |
-            sed -n 's/#define.\(CONFIG_[A-Za-z0-9_]*\).*/\1/p' |
+         (grep '#define[[:blank:]]CONFIG_' $CFG |
+            sed -n 's/#define.\(CONFIG_[A-Za-z0-9_]*\).*/\1/p' ;
+            grep '#undef[[:blank:]]CONFIG_' $CFG |
+            sed -n 's/#undef.\(CONFIG_[A-Za-z0-9_]*\).*/\1/p') |
             sort -u > ${KUSEDLST} || true;
-         NUM=`comm -12 --total --output-delimiter=, ${KSYMLST} ${KUSEDLST} |
+         NUM=`comm -123 --total --output-delimiter=, ${KSYMLST} ${KUSEDLST} |
             cut -d , -f 3`;
          if [[ $NUM -ne 0 ]]; then
-            echo "Unmigrated symbols found in $CFG";
-            exit 1;
+            echo "Unmigrated symbols found in $CFG:";
+            comm -12 ${KSYMLST} ${KUSEDLST};
+            RET=1;
          fi;
-      done
+      done;
+      exit $RET
 
 # QA jobs for code analytics
 # static code analysis with cppcheck (we can add --enable=all later)
@@ -215,6 +220,22 @@ Run tests for Nokia RX-51 (aka N900):
     - export PATH=/opt/gcc-11.1.0-nolibc/arm-linux-gnueabi/bin:$PATH;
       test/nokia_rx51_test.sh
 
+# Check for any pylint regressions
+Run pylint:
+  stage: testsuites
+  script:
+    - pip install -r test/py/requirements.txt
+    - pip install asteval pylint==2.12.2 pyopenssl
+    - export PATH=${PATH}:~/.local/bin
+    - echo "[MASTER]" >> .pylintrc
+    - echo "load-plugins=pylint.extensions.docparams" >> .pylintrc
+    - export UBOOT_TRAVIS_BUILD_DIR=/tmp/sandbox_spl
+    - ./tools/buildman/buildman -T0 -o ${UBOOT_TRAVIS_BUILD_DIR} -w
+        --board sandbox_spl
+    - pylint --version
+    - export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt"
+    - make pylint_err
+
 # Test sandbox with test.py
 sandbox test.py:
   variables:
@@ -237,6 +258,12 @@ sandbox_noinst_test.py:
   variables:
     TEST_PY_BD: "sandbox_noinst"
     TEST_PY_TEST_SPEC: "test_ofplatdata or test_handoff or test_spl"
+  <<: *buildman_and_testpy_dfn
+
+sandbox_vpl test.py:
+  variables:
+    TEST_PY_BD: "sandbox_vpl"
+    TEST_PY_TEST_SPEC: "test_vpl_help or test_spl"
   <<: *buildman_and_testpy_dfn
 
 evb-ast2500 test.py:
