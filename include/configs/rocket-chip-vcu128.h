@@ -4,8 +4,6 @@
 #include <linux/sizes.h>
 
 #define CONFIG_SYS_SDRAM_BASE 0x80000000
-// loaded by OpenSBI at 0x80020000
-#define CONFIG_SYS_LOAD_ADDR 0x80020000
 
 #define CONFIG_STANDALONE_LOAD_ADDR 0x80200000
 

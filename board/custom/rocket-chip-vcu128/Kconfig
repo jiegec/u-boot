@@ -12,8 +12,8 @@ config SYS_CPU
 config SYS_CONFIG_NAME
 	default "rocket-chip-vcu128"
 
-config SYS_TEXT_BASE
-	default 0x80000000
+config TEXT_BASE
+	default 0x80020000
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
