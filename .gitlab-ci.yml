@@ -2,7 +2,7 @@
 
 # Grab our configured image.  The source for this is found at:
 # https://source.denx.de/u-boot/gitlab-ci-runner
-image: trini/u-boot-gitlab-ci-runner:focal-20211006-14Nov2021
+image: trini/u-boot-gitlab-ci-runner:focal-20220113-03Feb2022
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
@@ -52,6 +52,16 @@ stages:
         genimage --inputpath . --config board/sifive/unleashed/genimage_spi-nor.cfg;
         cp images/spi-nor.img ${UBOOT_TRAVIS_BUILD_DIR}/;
       fi
+    - if [[ "${TEST_PY_BD}" == "coreboot" ]]; then
+        wget -O -
+          "https://drive.google.com/uc?id=1x6nrtWIyIRPLS2cQBwYTnT2TbOI8UjmM&export=download" |
+          xz -dc >${UBOOT_TRAVIS_BUILD_DIR}/coreboot.rom;
+        wget -O -
+          "https://drive.google.com/uc?id=149Cz-5SZXHNKpi9xg6R_5XITWohu348y&export=download" >
+          cbfstool;
+        chmod a+x cbfstool;
+        ./cbfstool ${UBOOT_TRAVIS_BUILD_DIR}/coreboot.rom add-flat-binary -f ${UBOOT_TRAVIS_BUILD_DIR}/u-boot.bin -n fallback/payload -c LZMA -l 0x1110000 -e 0x1110000;
+      fi
     - virtualenv -p /usr/bin/python3 /tmp/venv
     - . /tmp/venv/bin/activate
     - pip install -r test/py/requirements.txt
@@ -61,6 +71,10 @@ stages:
       ./test/py/test.py -ra --bd ${TEST_PY_BD} ${TEST_PY_ID}
         ${TEST_PY_TEST_SPEC:+"-k ${TEST_PY_TEST_SPEC}"}
         --build-dir "$UBOOT_TRAVIS_BUILD_DIR"
+    # It seems that the files in /tmp go away, so copy out what we need
+    - if [[ "${TEST_PY_BD}" == "coreboot" ]]; then
+        cp -v /tmp/coreboot/*.{html,css} .;
+      fi
 
 build all 32bit ARM platforms:
   stage: world build
@@ -104,6 +118,27 @@ build all other platforms:
         ./tools/buildman/buildman -o /tmp -seP;
         exit $ret;
       fi;
+
+check for migrated symbols in board header:
+  stage: testsuites
+  script:
+    - KSYMLST=`mktemp`;
+      KUSEDLST=`mktemp`;
+      cat `find . -name "Kconfig*"` |
+         sed -n -e 's/^\s*config *\([A-Za-z0-9_]*\).*$/CONFIG_\1/p'
+         -e 's/^\s*menuconfig *\([A-Za-z0-9_]*\).*$/CONFIG_\1/p'
+         | sort -u > $KSYMLST;
+      for CFG in `find include/configs -name "*.h"`; do
+         grep '#define[[:blank:]]CONFIG_' $CFG |
+            sed -n 's/#define.\(CONFIG_[A-Za-z0-9_]*\).*/\1/p' |
+            sort -u > ${KUSEDLST} || true;
+         NUM=`comm -12 --total --output-delimiter=, ${KSYMLST} ${KUSEDLST} |
+            cut -d , -f 3`;
+         if [[ $NUM -ne 0 ]]; then
+            echo "Unmigrated symbols found in $CFG";
+            exit 1;
+         fi;
+      done
 
 # QA jobs for code analytics
 # static code analysis with cppcheck (we can add --enable=all later)
@@ -365,4 +400,16 @@ xtfpga test.py:
     TEST_PY_BD: "xtfpga"
     TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id qemu"
+  <<: *buildman_and_testpy_dfn
+
+coreboot test.py:
+  variables:
+    TEST_PY_BD: "coreboot"
+    TEST_PY_TEST_SPEC: "not sleep"
+    TEST_PY_ID: "--id qemu"
+  artifacts:
+    paths:
+      - "*.html"
+      - "*.css"
+    expire_in: 1 week
   <<: *buildman_and_testpy_dfn
