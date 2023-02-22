@@ -40,6 +40,7 @@ CONFIG_SHA256=n
 CONFIG_DM_MMC=n
 CONFIG_CMD_LOADB=n
 CONFIG_CMD_FDT=n
+CONFIG_CRC32=n
 
 # run in s-mode
 # as payload of opensbi
@@ -83,9 +84,6 @@ CONFIG_CMD_I2C=y
 CONFIG_DM_GPIO=y
 CONFIG_DM_PCA953X=y
 CONFIG_CMD_GPIO=y
-
-# utilities
-CONFIG_CMD_FDT=y
 
 # use embedded dtb
 CONFIG_OF_SEPARATE=y
