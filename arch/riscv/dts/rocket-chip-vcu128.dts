@@ -156,7 +156,7 @@
 			};
 		};
 		eth_dma0: eth_dma@60300000 {
-			reg = <0x0 0x60300000>;
+			reg = <0x60300000 0x10000>;
 		};
 		eth0: eth0@60400000 {
 			compatible = "xlnx,axi-ethernet-1.00.a";
