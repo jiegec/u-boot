@@ -86,6 +86,6 @@ CONFIG_DM_GPIO=n
 CONFIG_DM_PCA953X=n
 CONFIG_CMD_GPIO=n
 
-# use embedded dtb
-CONFIG_OF_SEPARATE=y
+# use dtb from OpenSBI
+CONFIG_OF_BOARD=y
 CONFIG_DEFAULT_DEVICE_TREE="rocket-chip-vcu128"
