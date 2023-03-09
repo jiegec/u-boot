@@ -7,7 +7,8 @@ dtb-$(CONFIG_TARGET_OPENPITON_RISCV64) += openpiton-riscv64.dtb
 dtb-$(CONFIG_TARGET_SIFIVE_UNLEASHED) += hifive-unleashed-a00.dtb
 dtb-$(CONFIG_TARGET_SIFIVE_UNMATCHED) += hifive-unmatched-a00.dtb
 dtb-$(CONFIG_TARGET_SIPEED_MAIX) += k210-maix-bit.dtb
-dtb-$(CONFIG_TARGET_ROCKET_CHIP_VCU128) += rocket-chip-vcu128.dtb
+dtb-$(CONFIG_TARGET_ROCKET_CHIP_VCU128) += rocket-chip-vcu128-single-core.dtb
+dtb-$(CONFIG_TARGET_ROCKET_CHIP_VCU128) += rocket-chip-vcu128-dual-core.dtb
 
 include $(srctree)/scripts/Makefile.dts
 
