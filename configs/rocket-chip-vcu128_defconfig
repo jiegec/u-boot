@@ -45,7 +45,7 @@ CONFIG_BOOTMETH_VBE=n
 # run in s-mode
 # as payload of opensbi
 CONFIG_RISCV_SMODE=y
-CONFIG_SYS_TEXT_BASE=0x80040000
+CONFIG_TEXT_BASE=0x80040000
 
 # early debug uart
 CONFIG_DEBUG_UART=y
