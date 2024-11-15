@@ -1,5 +1,5 @@
 #!/bin/sh
-make CROSS_COMPILE=riscv64-linux-gnu- -j8 rocket-chip-vcu128-smode_defconfig
+make CROSS_COMPILE=riscv64-linux-gnu- -j8 rocket-chip-vcu128_defconfig
 make CROSS_COMPILE=riscv64-linux-gnu- -j8
 size u-boot
 ls -alh u-boot.bin u-boot-nodtb.bin
