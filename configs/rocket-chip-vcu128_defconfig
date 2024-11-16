@@ -31,6 +31,10 @@ CONFIG_DM_MTD=y
 CONFIG_ENV_IS_NOWHERE=y
 CONFIG_TIMESTAMP=y
 
+# do not add reversed memory
+# it is already handled in Linux
+CONFIG_OF_BOARD_FIXUP=n
+
 # reduce image size
 CONFIG_BLK=n
 CONFIG_MTD=n
