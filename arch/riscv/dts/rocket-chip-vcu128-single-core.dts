@@ -20,7 +20,7 @@
 			mmu-type = "riscv,sv39";
 			next-level-cache = <&ram0>;
 			reg = <0x0>;
-			riscv,isa = "rv64imafdcZicsr_Zifencei";
+			riscv,isa = "rv64imafdcbzicsr_zifencei_zihpm_zfh_zba_zbb_zbs_xrocket";
 			riscv,pmpgranularity = <4>;
 			riscv,pmpregions = <8>;
 			status = "okay";
