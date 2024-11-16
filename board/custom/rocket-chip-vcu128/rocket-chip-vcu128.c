@@ -14,6 +14,8 @@ int board_late_init(void)
 
 void *board_fdt_blob_setup(int *err)
 {
+	// Ignore previous error
+	*err = 0;
 	// Use DTB passed from OpenSBI
 	return (ulong *)(uintptr_t)gd->arch.firmware_fdt_addr;
 }
