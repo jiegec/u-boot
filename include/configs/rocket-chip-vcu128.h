@@ -8,7 +8,7 @@
 #define RISCV_MMODE_TIMERBASE 0x2000000
 #define RISCV_MMODE_TIMER_FREQ 1000000
 
-#define CFG_EXTRA_ENV_SETTINGS                                              \
+#define CFG_EXTRA_ENV_SETTINGS                                                 \
   "autoload=no\0"                                                              \
   "serverip=10.0.0.1\0"                                                        \
   "ipaddr=10.0.0.2\0"                                                          \
