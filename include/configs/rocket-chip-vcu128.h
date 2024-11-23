@@ -7,6 +7,7 @@
 
 #define RISCV_MMODE_TIMERBASE 0x2000000
 #define RISCV_MMODE_TIMER_FREQ 1000000
+#define RISCV_SMODE_TIMER_FREQ 1000000
 
 #define CFG_EXTRA_ENV_SETTINGS                                                 \
   "autoload=no\0"                                                              \
