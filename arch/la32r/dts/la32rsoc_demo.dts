@@ -1,0 +1,60 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+
+/ {
+    model = "loongson,generic";
+    compatible = "loongson,loongson3";
+    #address-cells = <1>;
+    #size-cells = <1>;
+
+    chosen {
+        stdout-path =  &serial0 ;
+        bootargs = "earlycon";
+    };
+
+
+    extioiic: interrupt-controller@0x1fe11600 {
+        compatible = "loongson,extioi-interrupt-controller";
+        interrupt-controller;
+        #interrupt-cells = <1>;
+        interrupt-parent = <&cpuic>;
+        interrupts = <3>;
+        interrupt-names = "cascade";
+        vec_count=<128>;
+        misc_func=<0x100>;
+        eio_en_off=<27>;
+    };
+
+
+
+    memory@0x0 {
+        name = "memory";
+        device_type = "memory";
+        reg = <0x00000000 0x08000000>;
+    };
+
+    cpuic: interrupt-controller {
+        compatible = "loongson,cpu-interrupt-controller";
+        interrupt-controller;
+        #interrupt-cells = <1>;
+    };
+
+
+
+    serial0: serial@0x9fe001e0 {
+        compatible = "ns16550a";
+        reg = <0x9fe001e0 0x1000>;
+        reg-offset = <0>;
+        reg-shift = <0>;
+        clock-frequency = <33000000>;
+        current-speed = <115200>;
+        no-loopback-test;
+    };
+
+    gmac0: ethernet@0x9ff00000 {
+        compatible = "ls,ls-dmfe";
+        evice_type = "network";
+        reg = <0x9ff00000 0x10000>;
+        mac-address = [ 00 98 76 64 32 19 ];/* [>mac 00:98:76:64:32:19 <]*/
+    };
+};

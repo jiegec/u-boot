@@ -758,6 +758,7 @@ int do_load(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
 				(argc > 4) ? argv[4] : "", map_sysmem(addr, 0),
 				len_read);
 
+	flush_cache(addr, len_read);
 	printf("%llu bytes read in %lu ms", len_read, time);
 	if (time > 0) {
 		puts(" (");

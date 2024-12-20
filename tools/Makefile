@@ -218,6 +218,7 @@ hostprogs-y += spl_size_limit
 endif
 
 hostprogs-$(CONFIG_MIPS) += mips-relocs
+hostprogs-$(CONFIG_LA32R) += la32r-relocs
 
 hostprogs-$(CONFIG_ASN1_COMPILER)	+= asn1_compiler
 HOSTCFLAGS_asn1_compiler.o = -idirafter $(srctree)/include

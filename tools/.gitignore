@@ -21,6 +21,7 @@
 /lib/
 /mips-relocs
 /mkeficapsule
+/la32r-relocs
 /mkenvimage
 /mkexynosspl
 /mkimage

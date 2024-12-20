@@ -35,7 +35,7 @@
 
 #ifndef CONFIG_SYS_BOOTM_LEN
 /* use 8MByte as default max gunzip size */
-#define CONFIG_SYS_BOOTM_LEN	0x800000
+#define CONFIG_SYS_BOOTM_LEN	0x2000000
 #endif
 
 #define MAX_CMDLINE_SIZE	SZ_4K
