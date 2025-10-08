@@ -2,7 +2,7 @@ variables:
   windows_vm: windows-2022
   ubuntu_vm: ubuntu-24.04
   macos_vm: macOS-14
-  ci_runner_image: trini/u-boot-gitlab-ci-runner:jammy-20240911.1-08Dec2024
+  ci_runner_image: trini/u-boot-gitlab-ci-runner:jammy-20250404-29Apr2025
   # Add '-u 0' options for Azure pipelines, otherwise we get "permission
   # denied" error when it tries to "useradd -m -u 1001 vsts_azpcontainer",
   # since our $(ci_runner_image) user is not root.
@@ -90,9 +90,9 @@ stages:
     steps:
       - script: |
           set -e
-          virtualenv -p /usr/bin/python3 /tmp/venvhtml
+          python3 -m venv /tmp/venvhtml
           . /tmp/venvhtml/bin/activate
-          pip install -r doc/sphinx/requirements.txt
+          pip install -r doc/sphinx/requirements.txt -r test/py/requirements.txt
           make htmldocs KDOC_WERROR=1
           make infodocs
 
@@ -132,16 +132,23 @@ stages:
           git config --global user.email bmeng.cn@gmail.com
           git config --global --add safe.directory $(work_dir)
           export USER=azure
-          virtualenv -p /usr/bin/python3 /tmp/venv
+          python3 -m venv /tmp/venv
           . /tmp/venv/bin/activate
-          pip install -r test/py/requirements.txt
-          pip install -r tools/buildman/requirements.txt
+          pip install -r test/py/requirements.txt \
+            -r tools/binman/requirements.txt \
+            -r tools/buildman/requirements.txt \
+            -r tools/patman/requirements.txt \
+            -r tools/u_boot_pylib/requirements.txt
           export UBOOT_TRAVIS_BUILD_DIR=/tmp/tools-only
           export PYTHONPATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt
           export PATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}
           ./tools/buildman/buildman -T0 -o ${UBOOT_TRAVIS_BUILD_DIR} -w --board tools-only
           set -ex
-          ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test
+          export TOOLPATH="--toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools --toolpath /opt/coreboot"
+          ./tools/binman/binman ${TOOLPATH} tool -f missing
+          ./tools/binman/binman ${TOOLPATH} test
+          # Avoid "Permission denied: 'cov'" error by using a temporary file
+          COVERAGE_FILE=/tmp/.coverage ./tools/binman/binman ${TOOLPATH} test -T
           ./tools/buildman/buildman -t
           ./tools/dtoc/dtoc -t
           ./tools/patman/patman test
@@ -163,9 +170,14 @@ stages:
       - script: |
           git config --global --add safe.directory $(work_dir)
           export USER=azure
-          pip install -r test/py/requirements.txt
-          pip install -r tools/buildman/requirements.txt
-          pip install asteval pylint==2.12.2 pyopenssl
+          python3 -m venv /tmp/venv
+          . /tmp/venv/bin/activate
+          pip install -r test/py/requirements.txt \
+            -r tools/binman/requirements.txt \
+            -r tools/buildman/requirements.txt \
+            -r tools/patman/requirements.txt \
+            -r tools/u_boot_pylib/requirements.txt \
+            asteval pylint==3.3.4 pyopenssl
           export PATH=${PATH}:~/.local/bin
           echo "[MASTER]" >> .pylintrc
           echo "load-plugins=pylint.extensions.docparams" >> .pylintrc
@@ -265,7 +277,13 @@ stages:
           if [ -n "\${BUILD_ENV}" ]; then
               export \${BUILD_ENV};
           fi
-          pip install -r tools/buildman/requirements.txt
+          python3 -m venv /tmp/venv
+          . /tmp/venv/bin/activate
+          pip install -r tools/binman/requirements.txt \
+            -r tools/buildman/requirements.txt \
+            -r test/py/requirements.txt \
+            -r tools/u_boot_pylib/requirements.txt \
+            pytest-azurepipelines
           tools/buildman/buildman -o \${UBOOT_TRAVIS_BUILD_DIR} -w -E -W -e --board \${TEST_PY_BD} \${OVERRIDE}
           cp /opt/grub/grub_x86.efi \${UBOOT_TRAVIS_BUILD_DIR}/
           cp /opt/grub/grub_x64.efi \${UBOOT_TRAVIS_BUILD_DIR}/
@@ -289,10 +307,13 @@ stages:
               /opt/coreboot/cbfstool \${UBOOT_TRAVIS_BUILD_DIR}/coreboot.rom remove -n fallback/payload;
               /opt/coreboot/cbfstool \${UBOOT_TRAVIS_BUILD_DIR}/coreboot.rom add-flat-binary -f \${UBOOT_TRAVIS_BUILD_DIR}/u-boot.bin -n fallback/payload -c LZMA -l 0x1110000 -e 0x1110000;
           fi
-          virtualenv -p /usr/bin/python3 /tmp/venv
-          . /tmp/venv/bin/activate
-          pip install -r test/py/requirements.txt
-          pip install pytest-azurepipelines
+          # If we have TF-A binaries, we need to use them.
+          if [[ -d /opt/tf-a/"\${TEST_PY_BD}" ]]; then
+            cp /opt/tf-a/"\${TEST_PY_BD}"/fip.bin /opt/tf-a/"\${TEST_PY_BD}"/bl1.bin /tmp;
+            export fip=/tmp/fip.bin;
+            export bl1=/tmp/bl1.bin;
+            export PATH=/opt/Base_RevC_AEMvA_pkg/models/Linux64_GCC-9.3:\${PATH};
+          fi
           export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:\${PATH}
           export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci
           # "\${var:+"-k \$var"}" expands to "" if \$var is empty, "-k \$var" if not
@@ -326,16 +347,18 @@ stages:
           TEST_PY_TEST_SPEC: "version"
         sandbox_clang:
           TEST_PY_BD: "sandbox"
-          OVERRIDE: "-O clang-17"
+          OVERRIDE: "-O clang-18"
         sandbox_clang_asan:
           TEST_PY_BD: "sandbox"
-          OVERRIDE: "-O clang-17 -a ASAN"
+          OVERRIDE: "-O clang-18 -a ASAN"
           TEST_PY_TEST_SPEC: "version"
         sandbox64:
           TEST_PY_BD: "sandbox64"
         sandbox64_clang:
           TEST_PY_BD: "sandbox64"
-          OVERRIDE: "-O clang-17"
+          OVERRIDE: "-O clang-18"
+        sandbox64_lwip:
+          TEST_PY_BD: "sandbox64_lwip"
         sandbox_spl:
           TEST_PY_BD: "sandbox_spl"
           TEST_PY_TEST_SPEC: "test_ofplatdata or test_handoff or test_spl"
@@ -410,14 +433,16 @@ stages:
           TEST_PY_BD: "evb-ast2500"
           TEST_PY_ID: "--id qemu"
           TEST_PY_TEST_SPEC: "not sleep"
-        evb_ast2600:
-          TEST_PY_BD: "evb-ast2600"
-          TEST_PY_ID: "--id qemu"
-          TEST_PY_TEST_SPEC: "not sleep"
         vexpress_ca9x4:
           TEST_PY_BD: "vexpress_ca9x4"
           TEST_PY_ID: "--id qemu"
           TEST_PY_TEST_SPEC: "not sleep"
+        vexpress_fvp:
+          TEST_PY_BD: "vexpress_fvp"
+          TEST_PY_TEST_SPEC: "not sleep and not hostfs"
+        vexpress_fvp_bloblist:
+          TEST_PY_BD: "vexpress_fvp_bloblist"
+          TEST_PY_TEST_SPEC: "not sleep and not hostfs"
         integratorcp_cm926ejs:
           TEST_PY_BD: "integratorcp_cm926ejs"
           TEST_PY_ID: "--id qemu"
@@ -582,7 +607,10 @@ stages:
           # make environment variables available as tests are running inside a container
           export BUILDMAN="${BUILDMAN}"
           git config --global --add safe.directory ${WORK_DIR}
-          pip install -r tools/buildman/requirements.txt
+          python3 -m venv /tmp/venv
+          . /tmp/venv/bin/activate
+          pip install -r tools/binman/requirements.txt \
+            -r tools/buildman/requirements.txt
           EOF
           cat << "EOF" >> build.sh
           if [[ "${BUILDMAN}" != "" ]]; then
