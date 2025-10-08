@@ -12,10 +12,10 @@ int board_late_init(void)
 	return 0;
 }
 
-void *board_fdt_blob_setup(int *err)
+int board_fdt_blob_setup(void **fdtp)
 {
-	// Ignore previous error
-	*err = 0;
-	// Use DTB passed from OpenSBI
-	return (ulong *)(uintptr_t)gd->arch.firmware_fdt_addr;
+	/* Use DTB passed from OpenSBI */
+	*fdtp = (void *)(uintptr_t)gd->arch.firmware_fdt_addr;
+
+	return 0;
 }
